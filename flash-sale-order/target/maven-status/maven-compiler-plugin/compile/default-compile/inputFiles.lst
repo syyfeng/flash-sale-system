@@ -1,0 +1,10 @@
+/Users/xiaoyue/Desktop/flash-sale-system/flash-sale-order/src/main/java/com/flashsale/order/service/OrderService.java
+/Users/xiaoyue/Desktop/flash-sale-system/flash-sale-order/src/main/java/com/flashsale/order/OrderApplication.java
+/Users/xiaoyue/Desktop/flash-sale-system/flash-sale-order/src/main/java/com/flashsale/order/task/MessageResendTask.java
+/Users/xiaoyue/Desktop/flash-sale-system/flash-sale-order/src/main/java/com/flashsale/order/service/OrderConsumer.java
+/Users/xiaoyue/Desktop/flash-sale-system/flash-sale-order/src/main/java/com/flashsale/order/entity/LocalMessage.java
+/Users/xiaoyue/Desktop/flash-sale-system/flash-sale-order/src/main/java/com/flashsale/order/repository/OrderRepository.java
+/Users/xiaoyue/Desktop/flash-sale-system/flash-sale-order/src/main/java/com/flashsale/order/repository/LocalMessageRepository.java
+/Users/xiaoyue/Desktop/flash-sale-system/flash-sale-order/src/main/java/com/flashsale/order/controller/OrderController.java
+/Users/xiaoyue/Desktop/flash-sale-system/flash-sale-order/src/main/java/com/flashsale/order/service/PaymentService.java
+/Users/xiaoyue/Desktop/flash-sale-system/flash-sale-order/src/main/java/com/flashsale/order/entity/Order.java

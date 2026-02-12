@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.flashsale.common.grpc";
+option java_outer_classname = "InventoryProto";
+
+package inventory;
+
+service InventoryServiceRPC {
+  rpc DeductStock (DeductStockRequest) returns (DeductStockResponse);
+}
+
+message DeductStockRequest {
+  int64 productId = 1;
+  int32 quantity = 2;
+}
+
+message DeductStockResponse {
+  bool success = 1;
+  string message = 2;
+}

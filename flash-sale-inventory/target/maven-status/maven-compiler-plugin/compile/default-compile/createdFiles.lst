@@ -1,0 +1,10 @@
+com/flashsale/inventory/InventoryApplication.class
+com/flashsale/inventory/entity/InventoryStock.class
+com/flashsale/inventory/repository/StockLogRepository.class
+com/flashsale/inventory/entity/Product.class
+com/flashsale/inventory/controller/InventoryController.class
+com/flashsale/inventory/repository/InventoryStockRepository.class
+com/flashsale/inventory/service/InventoryConsumer.class
+com/flashsale/inventory/service/InventoryServiceImpl.class
+com/flashsale/inventory/repository/ProductRepository.class
+com/flashsale/inventory/entity/StockLog.class

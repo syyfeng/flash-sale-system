@@ -1,0 +1,10 @@
+/Users/xiaoyue/Desktop/flash-sale-system/flash-sale-inventory/src/main/java/com/flashsale/inventory/service/InventoryServiceImpl.java
+/Users/xiaoyue/Desktop/flash-sale-system/flash-sale-inventory/src/main/java/com/flashsale/inventory/entity/StockLog.java
+/Users/xiaoyue/Desktop/flash-sale-system/flash-sale-inventory/src/main/java/com/flashsale/inventory/entity/InventoryStock.java
+/Users/xiaoyue/Desktop/flash-sale-system/flash-sale-inventory/src/main/java/com/flashsale/inventory/entity/Product.java
+/Users/xiaoyue/Desktop/flash-sale-system/flash-sale-inventory/src/main/java/com/flashsale/inventory/InventoryApplication.java
+/Users/xiaoyue/Desktop/flash-sale-system/flash-sale-inventory/src/main/java/com/flashsale/inventory/repository/ProductRepository.java
+/Users/xiaoyue/Desktop/flash-sale-system/flash-sale-inventory/src/main/java/com/flashsale/inventory/repository/StockLogRepository.java
+/Users/xiaoyue/Desktop/flash-sale-system/flash-sale-inventory/src/main/java/com/flashsale/inventory/repository/InventoryStockRepository.java
+/Users/xiaoyue/Desktop/flash-sale-system/flash-sale-inventory/src/main/java/com/flashsale/inventory/controller/InventoryController.java
+/Users/xiaoyue/Desktop/flash-sale-system/flash-sale-inventory/src/main/java/com/flashsale/inventory/service/InventoryConsumer.java

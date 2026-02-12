@@ -1,0 +1,13 @@
+com/flashsale/order/OrderApplication.class
+com/flashsale/order/entity/LocalMessage.class
+com/flashsale/order/service/PaymentService$1.class
+com/flashsale/order/service/OrderConsumer.class
+com/flashsale/order/service/PaymentService$PaymentResult.class
+com/flashsale/order/repository/LocalMessageRepository.class
+com/flashsale/order/controller/OrderController.class
+com/flashsale/order/service/PaymentService.class
+com/flashsale/order/entity/Order.class
+com/flashsale/order/service/OrderService$1.class
+com/flashsale/order/repository/OrderRepository.class
+com/flashsale/order/task/MessageResendTask.class
+com/flashsale/order/service/OrderService.class

@@ -1,0 +1,82 @@
+# ================================================================
+#  flash-sale-system  –  Kubernetes Services
+# ================================================================
+
+# ----------------------------------------------------------------
+# 1. Discovery – ClusterIP (internal only, pods register via DNS)
+# ----------------------------------------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: flash-sale-discovery
+  labels:
+    app: flash-sale-discovery
+spec:
+  type: ClusterIP
+  selector:
+    app: flash-sale-discovery
+  ports:
+    - name: http
+      port: 8761
+      targetPort: 8761
+
+---
+# ----------------------------------------------------------------
+# 2. Gateway – NodePort (external traffic enters the cluster here)
+# ----------------------------------------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: flash-sale-gateway
+  labels:
+    app: flash-sale-gateway
+spec:
+  type: NodePort
+  selector:
+    app: flash-sale-gateway
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+      nodePort: 30080          # accessible at <NodeIP>:30080
+
+---
+# ----------------------------------------------------------------
+# 3. Order Service – ClusterIP
+# ----------------------------------------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: flash-sale-order
+  labels:
+    app: flash-sale-order
+spec:
+  type: ClusterIP
+  selector:
+    app: flash-sale-order
+  ports:
+    - name: http
+      port: 8082
+      targetPort: 8082
+
+---
+# ----------------------------------------------------------------
+# 4. Inventory Service – ClusterIP  (REST + gRPC)
+# ----------------------------------------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: flash-sale-inventory
+  labels:
+    app: flash-sale-inventory
+spec:
+  type: ClusterIP
+  selector:
+    app: flash-sale-inventory
+  ports:
+    - name: http
+      port: 8081
+      targetPort: 8081
+    - name: grpc
+      port: 9090
+      targetPort: 9090

@@ -1,0 +1,42 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: flash-sale-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+
+      routes:
+        # Route: Order Service
+        - id: order-service-route
+          uri: lb://flash-sale-order
+          predicates:
+            - Path=/api/order/**
+
+        # Route: Inventory Service
+        - id: inventory-service-route
+          uri: lb://flash-sale-inventory
+          predicates:
+            - Path=/api/inventory/**
+
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/

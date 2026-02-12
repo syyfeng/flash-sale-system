@@ -1,0 +1,54 @@
+# Java / Maven
+/target/
+!.mvn/wrapper/maven-wrapper.jar
+/.idea
+*.iml
+.classpath
+.project
+.settings/
+*.log
+
+# Spring Boot
+/*.log
+logs/
+spring.log
+
+# Node
+/node_modules/
+/dist/
+build/
+npm-debug.log*
+yarn-error.log
+.pnp.*
+
+# Vite / frontend
+/.vite
+/.env.local
+/.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-compose.override.yml
+.env
+/data/*
+
+# IntelliJ
+out/
+*.iws
+
+# Misc
+*.tmp
+*.swptarget/
+.idea/
+*.iml
+.DS_Store
+logs/

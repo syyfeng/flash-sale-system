@@ -1,0 +1,215 @@
+# ================================================================
+#  flash-sale-system  –  Kubernetes Deployments
+#
+#  External dependencies (MySQL, Redis, Kafka, Zookeeper) are
+#  running on the host machine via Docker Compose.
+#  Pods reach them through "host.docker.internal".
+# ================================================================
+
+# ----------------------------------------------------------------
+# 1. Eureka Discovery Server  (1 replica, port 8761)
+# ----------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flash-sale-discovery
+  labels:
+    app: flash-sale-discovery
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flash-sale-discovery
+  template:
+    metadata:
+      labels:
+        app: flash-sale-discovery
+    spec:
+      containers:
+        - name: flash-sale-discovery
+          image: your-registry.com/flash-sale-discovery:latest    # TODO: update registry
+          ports:
+            - containerPort: 8761
+          env:
+            - name: EUREKA_INSTANCE_HOSTNAME
+              value: "flash-sale-discovery"
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: "http://flash-sale-discovery:8761/eureka/"
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8761
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8761
+            initialDelaySeconds: 60
+            periodSeconds: 15
+
+---
+# ----------------------------------------------------------------
+# 2. API Gateway  (1 replica, port 8080)
+# ----------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flash-sale-gateway
+  labels:
+    app: flash-sale-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flash-sale-gateway
+  template:
+    metadata:
+      labels:
+        app: flash-sale-gateway
+    spec:
+      containers:
+        - name: flash-sale-gateway
+          image: your-registry.com/flash-sale-gateway:latest      # TODO: update registry
+          ports:
+            - containerPort: 8080
+          env:
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: "http://flash-sale-discovery:8761/eureka/"
+            - name: EUREKA_INSTANCE_PREFERIPADDRESS
+              value: "true"
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 15
+
+---
+# ----------------------------------------------------------------
+# 3. Order Service  (3 replicas, port 8082)
+# ----------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flash-sale-order
+  labels:
+    app: flash-sale-order
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: flash-sale-order
+  template:
+    metadata:
+      labels:
+        app: flash-sale-order
+    spec:
+      containers:
+        - name: flash-sale-order
+          image: your-registry.com/flash-sale-order:latest        # TODO: update registry
+          ports:
+            - containerPort: 8082
+          env:
+            # ── Eureka ──
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: "http://flash-sale-discovery:8761/eureka/"
+            - name: EUREKA_INSTANCE_PREFERIPADDRESS
+              value: "true"
+            # ── MySQL (on host) ──
+            - name: MYSQL_HOST
+              value: "host.docker.internal"
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:mysql://host.docker.internal:3306/flash_sale?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: "root"
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: "root"
+            # ── Kafka (on host) ──
+            - name: KAFKA_HOST
+              value: "host.docker.internal"
+            - name: SPRING_KAFKA_BOOTSTRAPSERVERS
+              value: "host.docker.internal:9092"
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8082
+            initialDelaySeconds: 40
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8082
+            initialDelaySeconds: 80
+            periodSeconds: 15
+
+---
+# ----------------------------------------------------------------
+# 4. Inventory Service  (3 replicas, ports 8081 + 9090 gRPC)
+# ----------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flash-sale-inventory
+  labels:
+    app: flash-sale-inventory
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: flash-sale-inventory
+  template:
+    metadata:
+      labels:
+        app: flash-sale-inventory
+    spec:
+      containers:
+        - name: flash-sale-inventory
+          image: your-registry.com/flash-sale-inventory:latest    # TODO: update registry
+          ports:
+            - containerPort: 8081
+            - containerPort: 9090
+              name: grpc
+          env:
+            # ── Eureka ──
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: "http://flash-sale-discovery:8761/eureka/"
+            - name: EUREKA_INSTANCE_PREFERIPADDRESS
+              value: "true"
+            # ── MySQL (on host) ──
+            - name: MYSQL_HOST
+              value: "host.docker.internal"
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:mysql://host.docker.internal:3306/flash_sale?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: "root"
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: "root"
+            # ── Redis (on host) ──
+            - name: REDIS_HOST
+              value: "host.docker.internal"
+            - name: SPRING_DATA_REDIS_HOST
+              value: "host.docker.internal"
+            # ── Kafka (on host) ──
+            - name: KAFKA_HOST
+              value: "host.docker.internal"
+            - name: SPRING_KAFKA_BOOTSTRAPSERVERS
+              value: "host.docker.internal:9092"
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8081
+            initialDelaySeconds: 40
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8081
+            initialDelaySeconds: 80
+            periodSeconds: 15
