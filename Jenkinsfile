@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_REGISTRY = 'your-registry.com'   // TODO: replace with your Docker Hub / private registry
-        IMAGE_TAG       = "${env.BUILD_NUMBER ?: 'latest'}"
+        DOCKER_HUB_USER = 'sfeng42'
+        DOCKER_CREDS_ID = 'docker-hub-credentials'
     }
 
     stages {

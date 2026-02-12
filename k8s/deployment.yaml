@@ -27,7 +27,7 @@ spec:
     spec:
       containers:
         - name: flash-sale-discovery
-          image: your-registry.com/flash-sale-discovery:latest    # TODO: update registry
+          image: sfeng42/flash-sale-discovery:latest    # TODO: update registry
           ports:
             - containerPort: 8761
           env:
@@ -70,7 +70,7 @@ spec:
     spec:
       containers:
         - name: flash-sale-gateway
-          image: your-registry.com/flash-sale-gateway:latest      # TODO: update registry
+          image: sfeng42/flash-sale-gateway:latest      # TODO: update registry
           ports:
             - containerPort: 8080
           env:
@@ -113,7 +113,7 @@ spec:
     spec:
       containers:
         - name: flash-sale-order
-          image: your-registry.com/flash-sale-order:latest        # TODO: update registry
+          image: sfeng42/flash-sale-order:latest        # TODO: update registry
           ports:
             - containerPort: 8082
           env:
@@ -171,7 +171,7 @@ spec:
     spec:
       containers:
         - name: flash-sale-inventory
-          image: your-registry.com/flash-sale-inventory:latest    # TODO: update registry
+          image: sfeng42/flash-sale-inventory:latest    # TODO: update registry
           ports:
             - containerPort: 8081
             - containerPort: 9090
