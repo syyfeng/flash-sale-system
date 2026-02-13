@@ -42,3 +42,14 @@ eureka:
 grpc:
   server:
     port: 9090
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true

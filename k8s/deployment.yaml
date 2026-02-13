@@ -79,14 +79,16 @@ spec:
             - name: EUREKA_INSTANCE_PREFERIPADDRESS
               value: "true"
           readinessProbe:
-            tcpSocket:
-              port: 8080
-            initialDelaySeconds: 60
-            periodSeconds: 10
-          livenessProbe:
-            tcpSocket:
+            httpGet:
+              path: /actuator/health
               port: 8080
             initialDelaySeconds: 120
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 90
             periodSeconds: 15
 
 ---
@@ -135,12 +137,14 @@ spec:
             - name: SPRING_KAFKA_BOOTSTRAPSERVERS
               value: "host.docker.internal:9092"
           readinessProbe:
-            tcpSocket:
+            httpGet:
+              path: /actuator/health
               port: 8082
             initialDelaySeconds: 40
             periodSeconds: 10
           livenessProbe:
-            tcpSocket:
+            httpGet:
+              path: /actuator/health
               port: 8082
             initialDelaySeconds: 80
             periodSeconds: 15
@@ -198,12 +202,14 @@ spec:
             - name: SPRING_KAFKA_BOOTSTRAPSERVERS
               value: "host.docker.internal:9092"
           readinessProbe:
-            tcpSocket:
+            httpGet:
+              path: /actuator/health
               port: 8081
             initialDelaySeconds: 40
             periodSeconds: 10
           livenessProbe:
-            tcpSocket:
+            httpGet:
+              path: /actuator/health
               port: 8081
             initialDelaySeconds: 80
             periodSeconds: 15
