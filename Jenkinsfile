@@ -10,8 +10,8 @@ pipeline {
     environment {
         DOCKER_HUB_USER = 'sfeng42'
         DOCKER_CREDS_ID = 'docker-hub-credentials'
-        // Use the Jenkins Build Number as the unique image tag (e.g., v1, v2, v3...)
         IMAGE_TAG = "v${BUILD_NUMBER}"
+        PATH = "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:${env.PATH}"
     }
 
     stages {
