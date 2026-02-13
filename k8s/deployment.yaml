@@ -27,7 +27,7 @@ spec:
     spec:
       containers:
         - name: flash-sale-discovery
-          image: sfeng42/flash-sale-discovery:latest    # TODO: update registry
+          image: sfeng42/flash-sale-discovery:latest
           ports:
             - containerPort: 8761
           env:
@@ -82,7 +82,7 @@ spec:
             httpGet:
               path: /actuator/health
               port: 8080
-            initialDelaySeconds: 30
+            initialDelaySeconds: 120
             periodSeconds: 10
           livenessProbe:
             httpGet:
