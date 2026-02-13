@@ -56,13 +56,8 @@ pipeline {
                             echo "🐳 Building and Pushing: ${svc.name}"
 
                             // Build the image (using the module directory as context)
-                            // Assumption: Dockerfile is inside the module folder
-                            sh "docker build -t ${imageWithTag} ./${svc.path}"
-
-                            // Push the specific version tag
+                            sh "docker build -t ${imageWithTag} -f ${svc.path}/Dockerfile ."
                             sh "docker push ${imageWithTag}"
-
-                            // Tag as 'latest' and push
                             sh "docker tag ${imageWithTag} ${imageLatest}"
                             sh "docker push ${imageLatest}"
                         }
