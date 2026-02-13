@@ -82,10 +82,10 @@ pipeline {
 
                 // Wait for the rollout to complete to ensure stability
                 // Increased timeout for Order/Inventory as they are heavier
-                sh 'kubectl rollout status deployment/flash-sale-discovery  --timeout=120s'
-                sh 'kubectl rollout status deployment/flash-sale-gateway    --timeout=120s'
-                sh 'kubectl rollout status deployment/flash-sale-order      --timeout=180s'
-                sh 'kubectl rollout status deployment/flash-sale-inventory  --timeout=180s'
+                sh 'kubectl rollout status deployment/flash-sale-discovery  --timeout=300s'
+                sh 'kubectl rollout status deployment/flash-sale-gateway    --timeout=300s'
+                sh 'kubectl rollout status deployment/flash-sale-order      --timeout=300s'
+                sh 'kubectl rollout status deployment/flash-sale-inventory  --timeout=300s'
             }
         }
     }
