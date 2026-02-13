@@ -1,67 +1,92 @@
 pipeline {
     agent any
 
+    // 1. Tool Configuration: Ensure Maven is installed/available
     tools {
         maven 'Maven3' 
     }
 
+    // 2. Environment Variables
     environment {
         DOCKER_HUB_USER = 'sfeng42'
         DOCKER_CREDS_ID = 'docker-hub-credentials'
+        // Use the Jenkins Build Number as the unique image tag (e.g., v1, v2, v3...)
+        IMAGE_TAG = "v${BUILD_NUMBER}"
     }
 
     stages {
 
         // ──────────────────────────────────────────────
-        // 1. Build – compile all Maven modules
+        // Stage 1: Build – Compile and package JARs
         // ──────────────────────────────────────────────
         stage('Build') {
             steps {
+                // -B: Batch mode (no colors/logs for transfer)
+                // -DskipTests: Speeds up the build for deployment
                 sh 'mvn clean package -DskipTests -B'
             }
         }
 
         // ──────────────────────────────────────────────
-        // 2. Docker – build & push images
+        // Stage 2: Docker – Build images and push to Hub
         // ──────────────────────────────────────────────
         stage('Docker') {
             steps {
                 script {
+                    // Define the list of services and their specific Dockerfile paths
                     def services = [
-                        [name: 'flash-sale-discovery',  dockerfile: 'flash-sale-discovery/Dockerfile'],
-                        [name: 'flash-sale-gateway',    dockerfile: 'flash-sale-gateway/Dockerfile'],
-                        [name: 'flash-sale-order',      dockerfile: 'flash-sale-order/Dockerfile'],
-                        [name: 'flash-sale-inventory',  dockerfile: 'flash-sale-inventory/Dockerfile'],
+                        [name: 'flash-sale-discovery',  path: 'flash-sale-discovery'],
+                        [name: 'flash-sale-gateway',    path: 'flash-sale-gateway'],
+                        [name: 'flash-sale-order',      path: 'flash-sale-order'],
+                        [name: 'flash-sale-inventory',  path: 'flash-sale-inventory']
                     ]
 
-                    for (svc in services) {
-                        def image = "${DOCKER_REGISTRY}/${svc.name}:${IMAGE_TAG}"
+                    // Securely inject Docker Hub credentials
+                    withCredentials([usernamePassword(credentialsId: DOCKER_CREDS_ID, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                        
+                        // 1. Log in to Docker Hub
+                        sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
 
-                        sh "docker build -t ${image} -f ${svc.dockerfile} ."
-                        sh "docker push ${image}"
+                        // 2. Loop through services to build and push
+                        services.each { svc ->
+                            def imageName = "${DOCKER_HUB_USER}/${svc.name}"
+                            def imageWithTag = "${imageName}:${IMAGE_TAG}"
+                            def imageLatest = "${imageName}:latest"
 
-                        // Also tag as 'latest'
-                        sh "docker tag ${image} ${DOCKER_REGISTRY}/${svc.name}:latest"
-                        sh "docker push ${DOCKER_REGISTRY}/${svc.name}:latest"
+                            echo "🐳 Building and Pushing: ${svc.name}"
+
+                            // Build the image (using the module directory as context)
+                            // Assumption: Dockerfile is inside the module folder
+                            sh "docker build -t ${imageWithTag} ./${svc.path}"
+
+                            // Push the specific version tag
+                            sh "docker push ${imageWithTag}"
+
+                            // Tag as 'latest' and push
+                            sh "docker tag ${imageWithTag} ${imageLatest}"
+                            sh "docker push ${imageLatest}"
+                        }
                     }
                 }
             }
         }
 
         // ──────────────────────────────────────────────
-        // 3. Deploy – roll out to Kubernetes
+        // Stage 3: Deploy – Update Kubernetes Cluster
         // ──────────────────────────────────────────────
         stage('Deploy') {
             steps {
+                // Apply all YAML configurations in the k8s folder
                 sh 'kubectl apply -f k8s/'
 
-                // Rolling restart to pull the latest images
+                // Force a rolling restart to ensure pods pull the new 'latest' image
                 sh 'kubectl rollout restart deployment/flash-sale-discovery'
                 sh 'kubectl rollout restart deployment/flash-sale-gateway'
                 sh 'kubectl rollout restart deployment/flash-sale-order'
                 sh 'kubectl rollout restart deployment/flash-sale-inventory'
 
-                // Wait for rollouts to finish
+                // Wait for the rollout to complete to ensure stability
+                // Increased timeout for Order/Inventory as they are heavier
                 sh 'kubectl rollout status deployment/flash-sale-discovery  --timeout=120s'
                 sh 'kubectl rollout status deployment/flash-sale-gateway    --timeout=120s'
                 sh 'kubectl rollout status deployment/flash-sale-order      --timeout=180s'
@@ -70,12 +95,13 @@ pipeline {
         }
     }
 
+    // Post-build actions
     post {
         success {
-            echo '✅ Pipeline completed – all services deployed to Kubernetes.'
+            echo '✅ Pipeline completed successfully – All services are live on Kubernetes.'
         }
         failure {
-            echo '❌ Pipeline failed – check the logs above.'
+            echo '❌ Pipeline failed – Please check the logs above for errors.'
         }
     }
 }
