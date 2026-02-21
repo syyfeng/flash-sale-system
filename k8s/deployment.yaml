@@ -102,7 +102,7 @@ metadata:
   labels:
     app: flash-sale-order
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: flash-sale-order
@@ -160,7 +160,7 @@ metadata:
   labels:
     app: flash-sale-inventory
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: flash-sale-inventory
