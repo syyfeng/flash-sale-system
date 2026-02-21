@@ -2,6 +2,8 @@
 
 A high-performance, distributed e-commerce system designed to handle **10k+ QPS** traffic spikes. It implements an **event-driven microservices architecture** with strict data consistency guarantees (Zero Overselling) using the **Transactional Outbox Pattern**, **Multi-Level Caching**, and **Optimistic Locking**.
 
+The system embraces modern cloud-native practices, featuring **automated CI/CD pipelines** via Jenkins and **container orchestration** via Kubernetes for zero-downtime rolling updates.
+
 ---
 
 ## 🏗 Architecture & Tech Stack
@@ -17,13 +19,14 @@ A high-performance, distributed e-commerce system designed to handle **10k+ QPS*
 ### Frontend
 
 * **Stack:** React 18, TypeScript, Vite, Ant Design.
-* **Deployment:** Nginx (Serving static assets + Reverse Proxy).
+* **Deployment:** Nginx (Serving static assets + Reverse Proxy routing to API Gateway).
 
-### Infrastructure
+### Infrastructure & DevOps
 
-* **Containerization:** Docker & Docker Compose (Full stack orchestration).
-* **Service Discovery:** Netflix Eureka.
-* **API Gateway:** Spring Cloud Gateway (with Rate Limiting).
+* **Containerization:** Docker.
+* **Orchestration:** Kubernetes (K8s) for managing microservice lifecycles, scaling, and self-healing.
+* **CI/CD Pipeline:** Jenkins (Automated build, Docker image packaging, pushing to Docker Hub, and triggering K8s rolling updates).
+* **Middleware Hosting:** Docker Compose (Used to host stateful services like MySQL, Redis, Kafka, Zookeeper locally).
 
 ---
 
@@ -51,55 +54,55 @@ A high-performance, distributed e-commerce system designed to handle **10k+ QPS*
 * If Payment fails, times out, or is cancelled by the user, a compensation event triggers to restore stock in both Redis and MySQL.
 
 
-
 ---
 
-## 📂 Project Structure
+## ⚡ Deployment & Quick Start
 
-```text
-flash-sale-system/
-├── flash-sale-common      # Shared DTOs, gRPC Proto files, Utils
-├── flash-sale-discovery   # Eureka Service Registry (Port: 8761)
-├── flash-sale-gateway     # API Gateway & Rate Limiting (Port: 8080)
-├── flash-sale-inventory   # Stock Management & Consumer (Port: 8081 / gRPC: 9090)
-├── flash-sale-order       # Order Lifecycle, Outbox Producer (Port: 8082)
-├── flash-sale-frontend    # React Client + Nginx (Port: 80)
-├── docker-compose.yml     # Container orchestration
-└── pom.xml                # Parent Maven configuration
-
-```
-
----
-
-## ⚡ Quick Start
+This project uses a hybrid deployment model for local development: **Middleware** runs on Docker Compose, while **Microservices** are orchestrated by Kubernetes and deployed via Jenkins.
 
 ### Prerequisites
 
-* **Docker Desktop** (Running)
-* **Java 17+** & **Maven** (For local compilation)
+* **Docker Desktop** (With Kubernetes enabled in settings)
+* **Jenkins** (Running locally or on a server, connected to your Git repo)
+* **Java 17+** & **Maven**
 
-### One-Click Run
+### Step 1: Start Stateful Middleware
 
-1. **Compile the Project:**
-(This generates the JAR files required for the Docker build)
+Start the foundational databases and message brokers via Docker Compose. The K8s pods will connect to these via `host.docker.internal`.
+
 ```bash
-mvn clean package -DskipTests
+docker compose up -d mysql redis zookeeper kafka
 
 ```
 
+### Step 2: Automated CI/CD Deployment (Jenkins & K8s)
 
-2. **Start Services:**
+Instead of manually compiling and starting JAR files, we use Jenkins to automate the entire lifecycle.
+
+1. Open your **Jenkins Dashboard**.
+2. Trigger the `flash-sale-system` pipeline (**Build Now**).
+3. The `Jenkinsfile` will automatically execute the following stages:
+* **Compile:** Runs `mvn clean package`.
+* **Build & Push Images:** Builds Docker images for all services and pushes them to Docker Hub.
+* **Deploy to K8s:** Applies the manifests in the `k8s/` directory (`kubectl apply -f k8s/`).
+* **Rolling Update:** Safely restarts K8s deployments (`kubectl rollout restart`) and waits for `readinessProbes` to pass, ensuring **zero-downtime deployments**.
+
+
+
+### Step 3: Verify & Access the System
+
+Check the status of your Kubernetes pods:
+
 ```bash
-docker compose up -d --build
+kubectl get pods
 
 ```
 
+Wait until all pods show `Running` and `1/1` READY. Then access:
 
-3. **Access the System:**
-* **Frontend (Mall & Admin):** [http://localhost](https://www.google.com/search?q=http://localhost)
-* **Eureka Dashboard:** [http://localhost:8761](https://www.google.com/search?q=http://localhost:8761)
-* **Kafka UI:** [http://localhost:8090](https://www.google.com/search?q=http://localhost:8090)
-
+* **Frontend (Mall & Admin):** `http://localhost` (Served by Nginx)
+* **Eureka Dashboard:** `http://localhost:8761`
+* **Kafka UI:** `http://localhost:8090` (If configured in docker-compose)
 
 ---
 
@@ -119,7 +122,6 @@ Records every attempt to change stock. Used to prevent double-deduction if Kafka
 
 Guarantees message delivery to Kafka.
 
-
 ---
 
 ## 🧪 Testing Flow
@@ -136,4 +138,7 @@ Guarantees message delivery to Kafka.
 2. Enter User Count: `1000`.
 3. Click **Simulate Traffic**.
 4. Observe **Redis Stock** drop instantly, while **DB Stock** drops eventually (Async sync).
-5. Check **Kafka UI** to see the message backlog processing.
+5. Check **Kafka UI** to see the message backlog processing sequentially.
+6. Observe Kubernetes Pods dynamically handling the load.
+
+---
